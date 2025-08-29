@@ -1,2 +1,141 @@
-# googlesheet
-googlesheet
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Store Theme Sheet</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 40px;
+      background-color: #f9f9f9;
+    }
+
+    h1 {
+      color: #333;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+      background: #fff;
+      box-shadow: 0 0 10px rgba(0,0,0,0.05);
+    }
+
+    th, td {
+      border: 1px solid #ccc;
+      padding: 12px;
+      text-align: left;
+    }
+
+    th {
+      background-color: #f2f2f2;
+    }
+
+    input, button {
+      padding: 10px;
+      margin: 5px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+    }
+
+    button {
+      background-color: #007BFF;
+      color: white;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background-color: #0056b3;
+    }
+
+    form {
+      margin-top: 40px;
+      background: #fff;
+      padding: 20px;
+      border-radius: 6px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.05);
+    }
+  </style>
+</head>
+<body>
+
+  <h1>📊 Store Theme Summary</h1>
+
+  <table id="dataTable">
+    <thead>
+      <tr>
+        <th>Store Name</th>
+        <th>Theme Name</th>
+        <th>Code Summary</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+
+  <form id="addForm">
+    <h2>➕ Add New Entry</h2>
+    <input type="text" id="store_name" placeholder="Store Name" required>
+    <input type="text" id="theme_name" placeholder="Theme Name" required>
+    <input type="text" id="code_summary" placeholder="Code Summary" required>
+    <button type="submit">Add</button>
+  </form>
+
+  <script>
+  const scriptURL = "https://script.google.com/macros/s/AKfycbyK_JcQgIhvEqvUHIB2LwwfZhlmRNarBIBT-xHIdCw2-tlaQpnBlT-VxlASrRDdKZw6Vg/exec";
+
+
+    async function loadData() {
+      const res = await fetch(scriptURL);
+      const data = await res.json();
+
+      const tbody = document.querySelector("#dataTable tbody");
+      tbody.innerHTML = "";
+
+      data.forEach(row => {
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+          <td>${row["Store Name"] || ""}</td>
+          <td>${row["Theme Name"] || ""}</td>
+          <td>${row["Code Summary"] || ""}</td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    document.getElementById("addForm").addEventListener("submit", async (e) => {
+      e.preventDefault();
+
+      const storeName = document.getElementById("store_name").value.trim();
+      const themeName = document.getElementById("theme_name").value.trim();
+      const codeSummary = document.getElementById("code_summary").value.trim();
+
+      if (!storeName || !themeName || !codeSummary) {
+        alert("All fields are required.");
+        return;
+      }
+
+      const response = await fetch(scriptURL, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          "Store Name": storeName,
+          "Theme Name": themeName,
+          "Code Summary": codeSummary
+        })
+      });
+
+      if (response.ok) {
+        alert("Data added!");
+        e.target.reset();
+        loadData();
+      } else {
+        alert("Error adding data.");
+      }
+    });
+
+    // Initial load
+    loadData();
+  </script>
+</body>
+</html>
